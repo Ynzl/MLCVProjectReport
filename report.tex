@@ -16,24 +16,28 @@
 
 \cvprfinalcopy % *** Uncomment this line for the final submission
 
-% \def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
+\def\cvprPaperID{MLCV Project 2017} % *** Enter the CVPR Paper ID here
 \def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
 
 % Pages are numbered in submission mode, and unnumbered in camera-ready
 %\ifcvprfinal\pagestyle{empty}\fi
 % \setcounter{page}{4321}
+
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{Cutting Constraints in Conservation Tracking}
+\title{Cutting Constraints on Conservation Tracking\\
+  \large{Project Report MLCV Summer 2017}
+}
 
 \author{Kodai Matsuoka\\
-{\tt\small firstauthor@i1.org}
+{\tt\small kodaig06@gmail.com}
 \and
 Yuyan Li\\
 {\tt\small yuyan.li@gmx.net}
 \and
-Jui-Hung Yuan
+Jui-Hung Yuan\\
+{\tt\small j.yuan@stud.uni-heidelberg.de}
 }
 
 \maketitle
@@ -41,13 +45,6 @@ Jui-Hung Yuan
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
-   The ABSTRACT is to be in fully-justified italicized text, at the top
-   of the left-hand column, below the author and affiliation
-   information. Use the word ``Abstract'' as the title, in 12-point
-   Times, boldface type, centered relative to the column, initially
-   capitalized. The abstract is to be in 10-point, single-spaced type.
-   Leave two blank lines after the Abstract, then begin the main text.
-   Look at previous CVPR abstracts to get a feel for style and length.
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
@@ -55,15 +52,29 @@ Jui-Hung Yuan
 
 Something about tracking.
 
-\section{Theory}
+\section{Constrained Network Flow Reformulation of Consveration Tracking}
 
-Something about flow conservation and ILPs
+\subsection{Conservation Tracking Model}
+We formualte tracking by assignment as a graphical model with detecetion nodes and stuff.
 
-\section{Methods}
+This graphical model will be reformulated into a network flow and solved as an ILP.
 
-Pseudo code about cutting constraints.
+\subsection{ILP for Network Flow}
+To solve ILPs we do LP relaxation.
 
-\section{Results}
+Our Network flow ILP looks like this:
+
+A LOT OF MATH
+
+\subsection{Loosening Constraints}
+
+On this we do cutting constraints! Because TUM something.
+
+What we do is cut all constraints and try to solve. If it's solved, great, if not, we add constraints to nodes with flow violation. Then solve again. Repeat until we find valid solution or no new violated nodes.
+
+\section{Experiments and Results}
+
+Our models are: Drosophila and Rapoport (with and without mergers?)
 
 \subsection{Solutions}
 
