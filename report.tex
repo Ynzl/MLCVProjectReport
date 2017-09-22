@@ -16,29 +16,28 @@
 
 \cvprfinalcopy % *** Uncomment this line for the final submission
 
-% \def\cvprPaperID{****} % *** Enter the CVPR Paper ID here
+\def\cvprPaperID{MLCV Project 2017} % *** Enter the CVPR Paper ID here
 \def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
 
 % Pages are numbered in submission mode, and unnumbered in camera-ready
 %\ifcvprfinal\pagestyle{empty}\fi
 % \setcounter{page}{4321}
+
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{Cutting Constraints in Conservation Tracking}
+\title{Cutting Constraints on Conservation Tracking\\
+  \large{Project Report MLCV Summer 2017}
+}
 
 \author{Kodai Matsuoka\\
-{\tt\small firstauthor@i1.org}
-% For a paper whose authors are all at the same institution,
-% omit the following lines up until the closing ``}''.
-% Additional authors and addresses can be added with ``\and'',
-% just like the second author.
-% To save space, use either the email address or home page, not both
+{\tt\small kodaig06@gmail.com}
 \and
 Yuyan Li\\
 {\tt\small yuyan.li@gmx.net}
 \and
-Jui-Hung Yuan
+Jui-Hung Yuan\\
+{\tt\small j.yuan@stud.uni-heidelberg.de}
 }
 
 \maketitle
@@ -46,29 +45,38 @@ Jui-Hung Yuan
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
-   The ABSTRACT is to be in fully-justified italicized text, at the top
-   of the left-hand column, below the author and affiliation
-   information. Use the word ``Abstract'' as the title, in 12-point
-   Times, boldface type, centered relative to the column, initially
-   capitalized. The abstract is to be in 10-point, single-spaced type.
-   Leave two blank lines after the Abstract, then begin the main text.
-   Look at previous CVPR abstracts to get a feel for style and length.
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
 \section{Introduction}
 
-Something about tracking.
+To understand the complex biological functions of living organisms, many experiments require monitoring of stem celgit ls or bacteria over several generations in order to draw statistically reasonable conclusions. However, those time-lapse experiments generate large amount of data, which human observers could hardly analyze without bias. Thus, automatated systems for cell tracking are necessary for those studies.
 
-\section{Theory}
+The analysis of the time-lapse microscopic results usually requires not only the tracking of position and locomotion of individual cells, but also the reconstruction of their full lineage. In comparison to pedestrian tracking, the cell tracking task is more challenging due to the constant change of the cellular texture and morphology throughout the cell cycle, the high density of cells with uncertain movement as well as the division events which is not included in other multi-object tracking tasks.
 
-Something about flow conservation and IPLs
+\section{Constrained Network Flow Reformulation of Consveration Tracking}
 
-\section{Methods}
+\subsection{Conservation Tracking Model}
+We formualte tracking by assignment as a graphical model with detecetion nodes and stuff.
 
-Pseudo code about cutting constraints.
+This graphical model will be reformulated into a network flow and solved as an ILP.
 
-\section{Results}
+\subsection{ILP for Network Flow}
+To solve ILPs we do LP relaxation.
+
+Our Network flow ILP looks like this:
+
+A LOT OF MATH
+
+\subsection{Loosening Constraints}
+
+On this we do cutting constraints! Because TUM something.
+
+What we do is cut all constraints and try to solve. If it's solved, great, if not, we add constraints to nodes with flow violation. Then solve again. Repeat until we find valid solution or no new violated nodes.
+
+\section{Experiments and Results}
+
+Our models are: Drosophila and Rapoport (with and without mergers?)
 
 \subsection{Solutions}
 
