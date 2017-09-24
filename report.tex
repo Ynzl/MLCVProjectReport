@@ -89,11 +89,39 @@ subject to constraints for flow conservation, division and mergers which will be
 
 \subsection{ILP for Network Flow}
 \label{ILP formulation}
-To solve ILPs we do LP relaxation.
+Linear Programming (LP) is a method to minimize (maximize) linear objective function, subject to linear inequality. Its formulation is as below.
+\[
+min_{x} c^{T}x
+\]
+\[
+s.t. Ax \leq b
+\]
+The objective function \(c^{T}x\) linearly depends on the vector \(x \in R^{n}\) which represents n variables in question. Constraint \(Ax \leq b\) defines n hyperplanes that disallow x to lie in the back side. The area where x satisfies all the constraints is called polytope. It is proved that the optimal solution lies on a vertex of the polytope. For this reason, LP is solved in polynomial time by searching along vertices on the polytope.
+
+When x takes only integer values (i.e. \(x \in Z^{n}\), the problem is called Integer Linear Programs (ILP). ILP is NP hard and cannot be solved in polynomial time in general. 
+
+
+A common approach to solve ILPs is to ignore the integrarity constraints and to solve this relaxed LP. Since this "relaxed" problem is LP, we can solve it in polynomial time. From the solution, we gain the information about original ILP problem.
+If the solution of relaxed LP is integtal - and hence coinsides with the solution of original ILP - , the relaxation is said to be "tight" around the optimum.
 
 Our Network flow ILP looks like this:
 
-A LOT OF MATH
+\begin{equation*}
+\begin{split}
+ y^* &= \operatorname*{arg\,max}_{y\in\mathcal{Y}} E(y) \\ 
+     &= \operatorname*{arg\,max}_{y\in\mathcal{Y}} \sum\limits_{X\in\mathcal{X}} E_X(y_X) + \sum\limits_{T\in\mathcal{T}} E_T(y_T) + \sum\limits_{D\in\mathcal{D}} E_D(y_D) \\
+     &= \operatorname*{arg\,max}_{y\in\mathcal{Y}} \sum\limits_{X\in\mathcal{X}} \sum\limits_{k\in\mathcal{L(X)}} \theta_X(k) 1[y_X = k] + \sum\limits_{T\in\mathcal{T}} \sum\limits_{k\in\mathcal{L(T)}} 1[y_T = k] + \sum\limits_{D\in\mathcal{D}} \sum\limits_{k\in\mathcal{L(D)}} 1[y_D = k] 
+\end{split}
+\end{equation*}
+
+subject to
+
+Flow conservarion:
+
+Division:
+
+Merger:
+
 
 \subsection{Loosening Constraints}
 
