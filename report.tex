@@ -13,6 +13,7 @@
 % egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
 % run, let it finish, and you should be clear).
 \usepackage[breaklinks=true,bookmarks=false]{hyperref}
+\usepackage[english]{cleveref}
 
 \cvprfinalcopy % *** Uncomment this line for the final submission
 
@@ -45,6 +46,7 @@ Jui-Hung Yuan\\
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
+  Cell tracking exhibits multiple difficulties separating it from other tracking scenarios. The fact that cells can divide is one of them. Network flow methods where these divisions are integrated as constraints proved to be efficient at solving these problems. In our project we tried to improve the runtime performance by adding the division constraints successively, similar to the cutting planes algorithm. We demonstrate in experiments on two challenging datasets that only a fraction of all constraints are needed to solve the tracking. But because of the iterative nature of the method the gain in solving speed is outweight by the total time of the repeated solving.
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
@@ -66,7 +68,7 @@ In this paper, we hence developed a iterative method that solve the problem with
 
 \subsection{Conservation Tracking Model}
 
-\begin{figure}[t]
+\begin{figure}[b]
 \begin{center}
 \centering\includegraphics[width=0.8\linewidth]{model.jpeg}
 \end{center}
@@ -91,39 +93,66 @@ subject to constraints for flow conservation, division and mergers which will be
 \label{ILP formulation}
 Linear Programming (LP) is a method to minimize (maximize) linear objective function, subject to linear inequality. Its formulation is as below.
 \[
-min_{x} c^{T}x
+min_{x} 　c^{T}x
 \]
 \[
 s.t. Ax \leq b
 \]
-The objective function \(c^{T}x\) linearly depends on the vector \(x \in R^{n}\) which represents n variables in question. Constraint \(Ax \leq b\) defines n hyperplanes that disallow x to lie in the back side. The area where x satisfies all the constraints is called polytope. It is proved that the optimal solution lies on a vertex of the polytope. For this reason, LP is solved in polynomial time by searching along vertices on the polytope.
-
-When x takes only integer values (i.e. \(x \in Z^{n}\), the problem is called Integer Linear Programs (ILP). ILP is NP hard and cannot be solved in polynomial time in general. 
-
+The objective function \(c^{T}x\) linearly depends on the vector \(x \in R^{n}\) which represents n variables in question. Constraint \(Ax \leq b\) defines n hyperplanes that disallow x to lie in the back side. The area where x satisfies all the constraints is called "polytope". It is proved that the optimal solution lies on a vertex of the polytope. For this reason, LP is solved in polynomial time by searching along vertices on the polytope.
+When x takes only integer values (i.e. \(x \in Z^{n}\) ), the problem is called Integer Linear Programs (ILP). ILP is NP hard in general and cannot be solved in polynomial time. 
 A common approach to solve ILPs is to ignore the integrarity constraints and to solve this relaxed LP. Since this "relaxed" problem is LP, we can solve it in polynomial time. From the solution, we gain the information about original ILP problem.
 If the solution of relaxed LP is integtal - and hence coinsides with the solution of original ILP - , the relaxation is said to be "tight" around the optimum.
 
-Our Network flow ILP looks like this:
+Network flow formulation.
+Flownetwork is a directed graph with capacity on each edge. The flow can travel on directed graph under following rules. (1)The flow should not exceed the capacity. (2)The flow traveling to and from one node must be equal (Flow conservation). One can imagine as such networks water pipes, traffic network, electric circuits. There are several types of Network flow algorithms. For example, max-flow algorithm tries to maximize the flow from source to sink, and min-cost algorithm finds the route that minimize the cost. An important property here is that if all capacities are integers, optimal flow also takes an integer value. This situation corresponds to the constraint matrix(A) is totallly unimodular (TUM) in ILP, therefore LP relaxation is tight.
 
+\begin{figure}[t]
+\begin{center}
+\centering\includegraphics[width=0.8\linewidth]{model2.jpeg}
+\end{center}
+   \caption{Figure 2. In the constrained network flow graph, the detection node \(X_{i}\) is only a single node with unary factor, and appearances as well as disappearances are modeled as transitions \(T_{app,i}\) from an auxiliary source (green S ) or \(T_{i,dis}\) to an auxiliary sink (green T ) respectively.}
+\end{figure}
+
+We deal with the flow network graph as shown in Fig.2. Notation is slightly changed from 2.1, $X_i \in \mathcal{X}$ is \textit{Detection} variables and the appearance $A_i \in \mathcal{A}$ and disappearance variables $V_i \in \mathcal{V}$ are modeled in \textit{transition} variables. Every random variables $V \in \mathcal{V}$ take state $k \in \mathcal{L}(V) \equiv {0, ...,m}$ indicating the number of contained target, where m is the upper about on the number of targets that can be merged into one detection. We introduce a unary potential $\theta_{V}(k)$ for every random variables $V \in \mathcal{V}$. This is the negative lof of probability that V takes value k. The probability is givein by local observation.
+Our formulation is as follows.
+
+\begin{scriptsize}
 \begin{equation*}
 \begin{split}
  y^* &= \operatorname*{arg\,max}_{y\in\mathcal{Y}} E(y) \\ 
      &= \operatorname*{arg\,max}_{y\in\mathcal{Y}} \sum\limits_{X\in\mathcal{X}} E_X(y_X) + \sum\limits_{T\in\mathcal{T}} E_T(y_T) + \sum\limits_{D\in\mathcal{D}} E_D(y_D) \\
-     &= \operatorname*{arg\,max}_{y\in\mathcal{Y}} \sum\limits_{X\in\mathcal{X}} \sum\limits_{k\in\mathcal{L(X)}} \theta_X(k) 1[y_X = k] + \sum\limits_{T\in\mathcal{T}} \sum\limits_{k\in\mathcal{L(T)}} 1[y_T = k] + \sum\limits_{D\in\mathcal{D}} \sum\limits_{k\in\mathcal{L(D)}} 1[y_D = k] 
+     &= \operatorname*{arg\,max}_{y\in\mathcal{Y}} \sum\limits_{X\in\mathcal{X}} \sum\limits_{k\in\mathcal{L(X)}} \theta_X(k) 1[y_X = k] + \sum\limits_{T\in\mathcal{T}} \sum\limits_{k\in\mathcal{L(T)}} 1[y_T = k] \newline \\
+     & + \sum\limits_{D\in\mathcal{D}} \sum\limits_{k\in\mathcal{L(D)}} 1[y_D = k] 
 \end{split}
 \end{equation*}
 
 subject to
 
 Flow conservarion:
+\[
+\forall X\in\mathcal{X} \cup Sink : y_{X} = \sum\limits_{I\in\mathcal{I}(X)}y_{I}, 
+\]
+\[
+\forall X\in\mathcal{X} \cup Source : y_{X} + Y_{D(X)} = \sum\limits_{O\in\mathcal{O}(X)}y_{O}
+\]
 
 Division:
+\[
+\forall D\in\mathcal{D} : y_{D} - y_{X(D)} \leq 0
+\]
 
 Merger:
+\[
+\forall X\in\mathcal{X}, \forall I\in\mathcal{I}(X),I \neq App(X) : 1[y_{I}=0]+1[y_{App(X)}=0] \geq 1
+\]
+\[
+\forall X\in\mathcal{X}, \forall O\in\mathcal{O}(X),O \neq Dis(X) : 1[y_{O}=0]+1[y_{Dis(O)}=0] \geq 1
+\]
+\end{scriptsize}
 
 \subsection{Loosening Constraints}
 
-As stated before, we know that LP relaxation on the network flow without \textit{divisions} and \textit{mergers} will yield the optimal integral solution. Therefore we propose the following iterative alogrithm: In the first step the problem will be solved without division and merger constraints. Then, if there are flow conservation violation, the constraints are added for the relevant nodes. The last step is repeated until either a valid solution found or no new nodes with violations are found (leaving us with an invalid solution).
+As stated before, we know that LP relaxation on the network flow without \textit{divisions} and \textit{mergers} will yield the optimal integral solution in polynomial time. Therefore we propose the following iterative alogrithm: In the first step the problem will be solved without division and merger constraints. Then, if there are flow conservation violation, the constraints are added for the relevant nodes. The last step is repeated until either a valid solution found or no new nodes with violations are found (leaving us with an invalid solution).
 
 
 \subsection{Implementation}
@@ -134,13 +163,67 @@ We built our algorithm as an extension to the \textit{Multi Hypothesis Tracking}
 
 We test our algorithm on two challenging datasets, a 3D+t drosophila scan (DRO) and 2D+t pancreatic rat stem cells (PSC) presented in Rapoport. There are two versions to both datasets, the full set including all mergers and a reduced version where mergers are omitted (DROr, PSCr). These datasets were given in the form of readily segmentated graphical models.
 
-We track these models in five different ways. First we run the original tracking on the full model with all constraints added. We use this solution (referred to as \textit{Full}) as our baseline, \ie ground truth, to evaluate the tracking performance of the other runs. These are for one our \textit{Cutting Constraint} algorithm (CC) and also the same experiments run with LP relaxation. Lastly, a variation of \textit{Cutting Constraint} is used where the first iteration is run with LP relaxation and then the integrality constraint is turned on.
+\subsection{Tracking Performance}
 
-We rate two solutions by checking for the agreement of \textit{move}, \textit{merge} and \textit{division} events per pair of consecutive frames.
+We track these datasets in five different ways. First we run the original tracking on the full model with all constraints added. We use this solution (referred to as \textit{Full}) as our baseline, \ie ground truth, to evaluate the tracking performance of the other runs. These are for the \textit{Cutting Constraint} algorithm (CC) and both experiments (Full and CC) run with LP relaxation. Lastly, a variation of \textit{Cutting Constraint} is used where the first iteration is run with LP relaxation and then the integrality constraint is turned on for the following iterations (abbreviated with \textit{L2I}).
 
-\subsection{Solutions}
+\begin{table}
+  \begin{center}
+  \begin{tabular}{|l|c||c|c|c|}
+    \hline
+    Dataset & Nodes & \multicolumn{3}{|c|}{Constraints}\\
+    \hline\hline
+            &       & CC ILP & CC LP & L2I\\
+    \hline
+    DROr & & 0.00 & & \\
+    PSCr & & & &\\
+    DRO & & & & \\
+    PSC & & & & \\
+    \hline
+  \end{tabular}
+  \end{center}
+  \caption{Number of constraints added before the CC algorithm terminated. Note that the high number for the LP relaxation occur because non-integral numbers in the solution are also treated as flow violation. Thus division and merger constraints are added but do not improve the solution.}
+  \label{tab:constraints}
+\end{table}
 
-\subsection{Computation Time}
+
+Both the CC and L2I method produce valid tracking solutions. When using LP relaxation only the DROr dataset could be solved with a valid solution. \Cref{tab:constraints} shows that only a small amount nodes need to be submitted to the division and merger constraints to find a valid solution. Although this seems like a promising result, we will see in the runtime analysis that the time to find the constraints outweigh any speed improvement.
+
+The quality of a solution is measured by comparing \textit{move}, \textit{merge} and \textit{division} events per pair of consecutive frames to the ground truth. !!!SAME?!!! The differences to the ground truth can be accounted by the allowed optimality gap of the Gurobi solver and the fact that the optimum must not be unique. The results in \cref{tab:fmeasure} indicate that the Cutting Constraint algorithm produces valid solutions that are very similar to the ground truth.
+
+\begin{table}
+  \begin{center}
+  \begin{tabular}{|l||c|c|c|c|}
+    \hline
+    Dataset & Full LP & CC ILP & CC LP & L2I\\
+    \hline\hline
+    DROr & & 0.00 & & \\
+    PSCr & & & &\\
+    DRO & & & & \\
+    PSC & & & & \\
+    \hline
+  \end{tabular}
+  \end{center}
+  \caption{F-measure of the different tracking results with regard to the \textit{Full} ILP solution.}
+  \label{tab:fmeasure}
+\end{table}
+
+
+\subsection{Runtime Analysis}
+
+\begin{figure}[t]
+  \begin{center}
+  \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+     %\includegraphics[width=0.8\linewidth]{egfigure.eps}
+  \end{center}
+   \caption{Example of caption.}
+  \label{fig:runtime}
+\end{figure}
+
+The runtime of the different methods are shown in \cref{fig:runtime}. All timings were performed on a machine with .... and 8GB RAM. Each experiment was run three times and the median is presented. In most cases the deviation between the runs was very small ($\sigma \leq 5\%$). However the size of the PSC model forced the machine to its limits and lead to big variations in the runtime. Furthermore because the black-box nature of both the Gurobi solver and the operating system it ran on, the runtime could be influenced by diverse mechanism unknown to us. Ideally the experiments are done on a machine with a lot more RAM. For the CC method the solving time is taken as the average over all iterations. In the L2I case this is not meaningful because of the mixing of ILP and LP solving.
+
+The experiments show that cutting constraints improve both model initialization time and the solving time significantly. But because of the amount of iterations and the time to verify the intermediate solutions, the total tracking time is slower. An exception is the DROr dataset without mergers which can be solved without any division constraints.
+
 
 
 \section{Conclusion}
