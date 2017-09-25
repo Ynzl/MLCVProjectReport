@@ -150,6 +150,14 @@ Merger:
 \]
 \end{scriptsize}
 
+where $\mathcal{I}(X)$ is incoming to X, $\mathcal{O}(X)$ is outgoing. The meaning of each constraint is
+flow conservation :the number of incoming and out going are the same.
+division constraint :one cell can dicide into at most two cells.
+merger constraint :mergers cannot partially disappear.
+
+Because of these additional constraints, the TUM property collapses, so LP relaxation is not tight.
+Therefore, we will first solve without division and meger constraints and then add only violated constraints.
+
 \subsection{Loosening Constraints}
 
 As stated before, we know that LP relaxation on the network flow without \textit{divisions} and \textit{mergers} will yield the optimal integral solution in polynomial time. Therefore we propose the following iterative alogrithm: In the first step the problem will be solved without division and merger constraints. Then, if there are flow conservation violation, the constraints are added for the relevant nodes. The last step is repeated until either a valid solution found or no new nodes with violations are found (leaving us with an invalid solution).
