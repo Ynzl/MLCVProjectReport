@@ -13,6 +13,7 @@
 % egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
 % run, let it finish, and you should be clear).
 \usepackage[breaklinks=true,bookmarks=false]{hyperref}
+\usepackage[english]{cleveref}
 
 \cvprfinalcopy % *** Uncomment this line for the final submission
 
@@ -45,6 +46,7 @@ Jui-Hung Yuan\\
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
+  Cell tracking exhibits multiple difficulties separating it from other tracking scenarios. The fact that cells can divide is one of them. Network flow methods where these divisions are integrated as constraints proved to be efficient at solving these problems. In our project we tried to improve the runtime performance by adding the division constraints successively, similar to the cutting planes algorithm. We demonstrate in experiments on two challenging datasets that only a fraction of all constraints are needed to solve the tracking. But because of the iterative nature of the method the gain in solving speed is outweight by the total time of the repeated solving.
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
@@ -66,7 +68,7 @@ In this paper, we hence developed a iterative method that solve the problem with
 
 \subsection{Conservation Tracking Model}
 
-\begin{figure}[t]
+\begin{figure}[b]
 \begin{center}
 \centering\includegraphics[width=0.8\linewidth]{model.jpeg}
 \end{center}
@@ -123,7 +125,7 @@ Merger:
 
 \subsection{Loosening Constraints}
 
-As stated before, we know that LP relaxation on the network flow without \textit{divisions} and \textit{mergers} will yield the optimal integral solution. Therefore we propose the following iterative alogrithm: In the first step the problem will be solved without division and merger constraints. Then, if there are flow conservation violation, the constraints are added for the relevant nodes. The last step is repeated until either a valid solution found or no new nodes with violations are found (leaving us with an invalid solution).
+As stated before, we know that LP relaxation on the network flow without \textit{divisions} and \textit{mergers} will yield the optimal integral solution in polynomial time. Therefore we propose the following iterative alogrithm: In the first step the problem will be solved without division and merger constraints. Then, if there are flow conservation violation, the constraints are added for the relevant nodes. The last step is repeated until either a valid solution found or no new nodes with violations are found (leaving us with an invalid solution).
 
 
 \subsection{Implementation}
@@ -134,13 +136,67 @@ We built our algorithm as an extension to the \textit{Multi Hypothesis Tracking}
 
 We test our algorithm on two challenging datasets, a 3D+t drosophila scan (DRO) and 2D+t pancreatic rat stem cells (PSC) presented in Rapoport. There are two versions to both datasets, the full set including all mergers and a reduced version where mergers are omitted (DROr, PSCr). These datasets were given in the form of readily segmentated graphical models.
 
-We track these models in five different ways. First we run the original tracking on the full model with all constraints added. We use this solution (referred to as \textit{Full}) as our baseline, \ie ground truth, to evaluate the tracking performance of the other runs. These are for one our \textit{Cutting Constraint} algorithm (CC) and also the same experiments run with LP relaxation. Lastly, a variation of \textit{Cutting Constraint} is used where the first iteration is run with LP relaxation and then the integrality constraint is turned on.
+\subsection{Tracking Performance}
 
-We rate two solutions by checking for the agreement of \textit{move}, \textit{merge} and \textit{division} events per pair of consecutive frames.
+We track these datasets in five different ways. First we run the original tracking on the full model with all constraints added. We use this solution (referred to as \textit{Full}) as our baseline, \ie ground truth, to evaluate the tracking performance of the other runs. These are for the \textit{Cutting Constraint} algorithm (CC) and both experiments (Full and CC) run with LP relaxation. Lastly, a variation of \textit{Cutting Constraint} is used where the first iteration is run with LP relaxation and then the integrality constraint is turned on for the following iterations (abbreviated with \textit{L2I}).
 
-\subsection{Solutions}
+\begin{table}
+  \begin{center}
+  \begin{tabular}{|l|c||c|c|c|}
+    \hline
+    Dataset & Nodes & \multicolumn{3}{|c|}{Constraints}\\
+    \hline\hline
+            &       & CC ILP & CC LP & L2I\\
+    \hline
+    DROr & & 0.00 & & \\
+    PSCr & & & &\\
+    DRO & & & & \\
+    PSC & & & & \\
+    \hline
+  \end{tabular}
+  \end{center}
+  \caption{Number of constraints added before the CC algorithm terminated. Note that the high number for the LP relaxation occur because non-integral numbers in the solution are also treated as flow violation. Thus division and merger constraints are added but do not improve the solution.}
+  \label{tab:constraints}
+\end{table}
 
-\subsection{Computation Time}
+
+Both the CC and L2I method produce valid tracking solutions. When using LP relaxation only the DROr dataset could be solved with a valid solution. \Cref{tab:constraints} shows that only a small amount nodes need to be submitted to the division and merger constraints to find a valid solution. Although this seems like a promising result, we will see in the runtime analysis that the time to find the constraints outweigh any speed improvement.
+
+The quality of a solution is measured by comparing \textit{move}, \textit{merge} and \textit{division} events per pair of consecutive frames to the ground truth. !!!SAME?!!! The differences to the ground truth can be accounted by the allowed optimality gap of the Gurobi solver and the fact that the optimum must not be unique. The results in \cref{tab:fmeasure} indicate that the Cutting Constraint algorithm produces valid solutions that are very similar to the ground truth.
+
+\begin{table}
+  \begin{center}
+  \begin{tabular}{|l||c|c|c|c|}
+    \hline
+    Dataset & Full LP & CC ILP & CC LP & L2I\\
+    \hline\hline
+    DROr & & 0.00 & & \\
+    PSCr & & & &\\
+    DRO & & & & \\
+    PSC & & & & \\
+    \hline
+  \end{tabular}
+  \end{center}
+  \caption{F-measure of the different tracking results with regard to the \textit{Full} ILP solution.}
+  \label{tab:fmeasure}
+\end{table}
+
+
+\subsection{Runtime Analysis}
+
+\begin{figure}[t]
+  \begin{center}
+  \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+     %\includegraphics[width=0.8\linewidth]{egfigure.eps}
+  \end{center}
+   \caption{Example of caption.}
+  \label{fig:runtime}
+\end{figure}
+
+The runtime of the different methods are shown in \cref{fig:runtime}. All timings were performed on a machine with .... and 8GB RAM. Each experiment was run three times and the median is presented. In most cases the deviation between the runs was very small ($\sigma \leq 5\%$). However the size of the PSC model forced the machine to its limits and lead to big variations in the runtime. Furthermore because the black-box nature of both the Gurobi solver and the operating system it ran on, the runtime could be influenced by diverse mechanism unknown to us. Ideally the experiments are done on a machine with a lot more RAM. For the CC method the solving time is taken as the average over all iterations. In the L2I case this is not meaningful because of the mixing of ILP and LP solving.
+
+The experiments show that cutting constraints improve both model initialization time and the solving time significantly. But because of the amount of iterations and the time to verify the intermediate solutions, the total tracking time is slower. An exception is the DROr dataset without mergers which can be solved without any division constraints.
+
 
 
 \section{Conclusion}
