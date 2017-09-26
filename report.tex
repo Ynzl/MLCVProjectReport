@@ -217,20 +217,37 @@ The quality of a solution is measured by comparing \textit{move}, \textit{merge}
 
 \subsection{Runtime Analysis}
 
-\begin{figure}[t]
+\begin{figure*}[t]
   \begin{center}
-  	\includegraphics[width=\linewidth]{dror.png}
-  	\includegraphics[width=\linewidth]{pscr.png}
-  	\includegraphics[width=\linewidth]{dro.png}
-  	\includegraphics[width=\linewidth]{psc.png}
+  	\includegraphics[width=.45\linewidth]{dror.png}
+  	\includegraphics[width=.45\linewidth]{pscr.png}
+  	\includegraphics[width=.45\linewidth]{dro.png}
+  	\includegraphics[width=.45\linewidth]{psc.png}
   \end{center}
    \caption{Runtime of the different tracking methods. In blue the total tracking time, in red the solving time which is the average over all iterations for the CC runs, in yellow the time to initialize the graphical model in OpenGM.}
   \label{fig:runtime}
-\end{figure}
+\end{figure*}
 
     The runtime of the different methods are shown in \cref{fig:runtime}. All timings were performed on a machine with an Intel Core i7-6700HQ with 8 cores at 2.6GHz and 8GB RAM. Each experiment was run three times and the median is presented. In most cases the deviation between the runs was very small ($\sigma \leq 5\%$). However the size of the PSC model forced the machine to its limits and lead to big variations in the runtime. Furthermore because the black-box nature of both the Gurobi solver and the operating system it ran on, the runtime could be influenced by diverse mechanism unknown to us. Ideally the experiments are done on a machine with a lot more RAM. For the CC method the solving time is taken as the average over all iterations. In the L2I case this is not meaningful because of the mixing of ILP and LP solving.
 
-The experiments show that cutting constraints improve both model initialization time and the solving time significantly. But because of the amount of iterations and the time to verify the intermediate solutions, the total tracking time is slower. An exception is the DROr dataset without mergers which can be solved without any division constraints. For all other datasets the needed constraints were only found after a significant amount of iterations.
+    The experiments show that cutting constraints improve both model initialization time and the solving time significantly. But because of the amount of iterations (see \cref{tab:iter}) and the time to verify the intermediate solutions, the total tracking time is slower. An exception is the DROr dataset without mergers which can be solved without any division constraints. For all other datasets the needed constraints were only found after a significant amount of iterations.
+
+\begin{table}
+  \begin{center}
+  \begin{tabular}{|l||c|c|c|c|}
+    \hline
+    Dataset & CC ILP & CC LP & L2I\\
+    \hline\hline
+    DROr & 1 & 1 & 1 \\
+    PSCr & 8 & 4 & 7 \\
+    DRO & 6 & 3 & 8 \\
+    PSC & 38 & 14 & 23 \\
+    \hline
+  \end{tabular}
+  \end{center}
+  \caption{Number of iterations for the different CC runs.}
+  \label{tab:iter}
+\end{table}
 
 The iteration numbers of the L2I runs show that CC LP does not find all needed division and merger constraints. While L2I show a small improvement in runtime over CC ILP it still is much slower than the Full run.
 
