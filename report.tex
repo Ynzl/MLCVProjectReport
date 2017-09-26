@@ -104,16 +104,17 @@ A common approach to solve ILPs is to ignore the integrarity constraints and to 
 If the solution of relaxed LP is integtal - and hence coinsides with the solution of original ILP - , the relaxation is said to be "tight" around the optimum.
 
 Network flow formulation.
-Flownetwork is a directed graph with capacity on each edge. The flow can travel on directed graph under following rules. (1)The flow should not exceed the capacity. (2)The flow traveling to and from one node must be equal (Flow conservation). One can imagine as such networks water pipes, traffic network, electric circuits. There are several types of Network flow algorithms. For example, max-flow algorithm tries to maximize the flow from source to sink, and min-cost algorithm finds the route that minimize the cost. An important property here is that if all capacities are integers, optimal flow also takes an integer value. This situation corresponds to the constraint matrix(A) is totallly unimodular (TUM) in ILP, therefore LP relaxation is tight.
+Flownetwork is a directed graph with capacity on each edge. The flow can travel on directed graph under following rules. (1)The flow should not exceed the capacity. (2)The flow traveling to and from one node must be equal (Flow conservation). One can imagine as such networks water pipes, traffic network, electric circuits. There are several types of Network flow algorithms. For example, max-flow algorithm tries to maximize the flow from source to sink, and min-cost algorithm finds the route that minimize the cost. An important property here is that if all capacities are integers, optimal flow also takes an integer value. This situation corresponds to the constraint matrix(A) is totallly unimodular (TUM) in ILP, therefore LP relaxation is tight ~\cite{Bertsekas}.
 
 \begin{figure}[t]
 \begin{center}
 \centering\includegraphics[width=0.8\linewidth]{model2.jpeg}
 \end{center}
-   \caption{Figure 2. In the constrained network flow graph, the detection node \(X_{i}\) is only a single node with unary factor, and appearances as well as disappearances are modeled as transitions \(T_{app,i}\) from an auxiliary source (green S ) or \(T_{i,dis}\) to an auxiliary sink (green T ) respectively.}
+   \caption{In the constrained network flow graph, the detection node \(X_{i}\) is only a single node with unary factor, and appearances as well as disappearances are modeled as transitions \(T_{app,i}\) from an auxiliary source (green S ) or \(T_{i,dis}\) to an auxiliary sink (green T ) respectively.}
+   \label{fig:ilpmodel}
 \end{figure}
 
-We deal with the flow network graph as shown in Fig.2. Notation is slightly changed from 2.1, $X_i \in \mathcal{X}$ is \textit{Detection} variables and the appearance $A_i \in \mathcal{A}$ and disappearance variables $V_i \in \mathcal{V}$ are modeled in \textit{transition} variables. Every random variables $V \in \mathcal{V}$ take state $k \in \mathcal{L}(V) \equiv {0, ...,m}$ indicating the number of contained target, where m is the upper about on the number of targets that can be merged into one detection. We introduce a unary potential $\theta_{V}(k)$ for every random variables $V \in \mathcal{V}$. This is the negative lof of probability that V takes value k. The probability is givein by local observation.
+We deal with the flow network graph as shown in Fig. \ref{fig:ilpmodel} Notation is slightly changed from 2.1, $X_i \in \mathcal{X}$ is \textit{Detection} variables and the appearance $A_i \in \mathcal{A}$ and disappearance variables $V_i \in \mathcal{V}$ are modeled in \textit{transition} variables. Every random variables $V \in \mathcal{V}$ take state $k \in \mathcal{L}(V) \equiv {0, ...,m}$ indicating the number of contained target, where m is the upper about on the number of targets that can be merged into one detection. We introduce a unary potential $\theta_{V}(k)$ for every random variables $V \in \mathcal{V}$. This is the negative lof of probability that V takes value k. The probability is givein by local observation.
 Our formulation is as follows.
 
 \begin{scriptsize}
