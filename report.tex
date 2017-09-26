@@ -51,11 +51,11 @@ Jui-Hung Yuan\\
 
 \section{Introduction}
 
-To understand the complex biological functions of living organisms, many experiments require monitoring of stem cells or bacteria over several generations under different conditions. However, those time-lapse experiments generate large amount of data, which human observers could hardly analyze without bias. Thus, automatated systems for cell tracking are necessary for those studies.
+To understand the complex biological functions of living organisms, many experiments require monitoring of stem cells or bacteria over several generations under different conditions  \cite{elowitz2002stochastic, schroeder2011long}. However, those time-lapse experiments generate large amount of data, which human observers could hardly analyze without bias \cite{wu2010microscope}. Thus, automatated systems for cell tracking are necessary for those studies.
 
-The analysis of the time-lapse microscopic results usually requires not only the tracking of position and locomotion of individual cells, but also the reconstruction of their full lineage. In comparison to pedestrian tracking, the cell tracking task is more challenging due to the constant change of the cellular texture and morphology throughout the cell cycle, the high density of cells with uncertain movement as well as the division events which is not included in other multi-object tracking tasks.
+The analysis of the time-lapse microscopic results usually requires not only the tracking of position and locomotion of individual cells, but also the reconstruction of their full lineage \cite{amat2013towards}. In comparison to pedestrian tracking, the cell tracking task is more challenging due to the constant change of the cellular texture and morphology throughout the cell cycle, the high density of cells with uncertain movement as well as the division events which is not included in other multi-object tracking tasks.
 
-To tackle the cell tracking task, a two-step pipeline consisting of a segmentation/detection phase and an assignment/tracking phase is commonly used. In the first phase, the raw input images are segmented into foreground and background. Those segmentations and the raw data are then fed into classifiers that generate the corresponding detection and division hypotheses. Using the outputs of the classifiers as potentials, a graphical model is built for all possible assignments of  detection hypotheses between time frames in the second phase. Such tracking approaches are known as \textit{Tracking-by-assignment} methods, which assume that the previous extracted set of detection hypotheses are over-complete and the constructed model thus describe all tracked targets. A globally consistent tracking solution is then reached via various optimization strategies.
+To tackle the cell tracking task, a two-step pipeline \cite{yilmaz2006object} consisting of a segmentation/detection phase and an assignment/tracking phase is commonly used. In the first phase, the raw input images are segmented into foreground and background. Those segmentations and the raw data are then fed into classifiers that generate the corresponding detection and division hypotheses. Using the outputs of the classifiers as potentials, a graphical model is built for all possible assignments of  detection hypotheses between time frames in the second phase. Such tracking approaches are known as \textit{Tracking-by-assignment} methods \cite{bise2011reliable,padfield2011coupled}, which assume that the previous extracted set of detection hypotheses are over-complete and the constructed model thus describe all tracked targets. A globally consistent tracking solution is then reached via various optimization strategies.
 
 The drawback of such method is that the errors in the first stage would propagate to, and warp, the tracking result. Such errors would occur where a cluster of objects is incorrectly represented by a single segment, termed as \textit{mergers} in this paper. To correct these over- and undersegmentation errors, the Conservation Tracking model which explicitly include the global consistency constraints was developed and was shown to outperform other tracking methods. From previous works, the Conservation Tracking model could be further reformulated into a constrained network flow problem which led to a tight LP relaxation and thus could be solved faster. Even without the constraints for divisions and mergers, the LP relaxation of the model that accounts for flow conservation would still yield integral solutions.
 
@@ -183,10 +183,10 @@ We track these datasets in five different ways. First we run the original tracki
     \hline\hline
             &       & CC ILP & CC LP & L2I\\
     \hline
-    DROr & 52k & 0 & 0 & \\
-    PSCr & 118k & 86 & 133 & \\
-    DRO & 22k & 33 & 468 & \\
-    PSC & 129k & 2605 & 15102 & \\
+    DROr & 52k & 0 & 0 & 0\\
+    PSCr & 118k & 86 & 133 & 2711\\
+    DRO & 22k & 33 & 468 & 490\\
+    PSC & 129k & 2605 & 15102 & 15867\\
     \hline
   \end{tabular}
   \end{center}
@@ -205,10 +205,10 @@ The quality of a solution is measured by comparing \textit{move}, \textit{merge}
     \hline
     Dataset & Full LP & CC ILP & CC LP & L2I\\
     \hline\hline
-    DROr & 99.99 & 99.99 & 99.99 & \\
-    PSCr & 99.91 & 99.93 & 99.92 &\\
-    DRO & 99.22 & 99.99 & 99.28 & \\
-    PSC & 98.35 & 99.38 & 98.33 & \\
+    DROr & 99.99 & 99.99 & 99.99 & 99.99\\
+    PSCr & 99.91 & 99.93 & 99.92 & 99.92\\
+    DRO & 99.22 & 99.99 & 99.28 & 99.99 \\
+    PSC & 98.35 & 99.38 & 98.33 & 99.81\\
     \hline
   \end{tabular}
   \end{center}
