@@ -31,11 +31,12 @@
   \large{Project Report MLCV Summer 2017}
 }
 
-\author{Kodai Matsuoka\\
-{\tt\small kodaig06@gmail.com}
-\and
+\author{
 Yuyan Li\\
 {\tt\small yuyan.li@gmx.net}
+\and
+Kodai Matsuoka\\
+{\tt\small kodaig06@gmail.com}
 \and
 Jui-Hung Yuan\\
 {\tt\small j.yuan@stud.uni-heidelberg.de}
@@ -44,12 +45,10 @@ Jui-Hung Yuan\\
 \maketitle
 %\thispagestyle{empty}
 
-%%%%%%%%% ABSTRACT
 \begin{abstract}
   Cell tracking exhibits multiple difficulties separating it from other tracking scenarios. The fact that cells can divide is one of them. Network flow methods where these divisions are integrated as constraints proved to be efficient at solving these problems. In our project we tried to improve the runtime performance by adding the division constraints successively, similar to the cutting planes algorithm. We demonstrate in experiments on two challenging datasets that only a fraction of all constraints are needed to solve the tracking. But because of the iterative nature of the method the gain in solving speed is outweight by the total time of the repeated solving.
 \end{abstract}
 
-%%%%%%%%% BODY TEXT
 \section{Introduction}
 
 To understand the complex biological functions of living organisms, many experiments require monitoring of stem cells or bacteria over several generations under different conditions. However, those time-lapse experiments generate large amount of data, which human observers could hardly analyze without bias. Thus, automatated systems for cell tracking are necessary for those studies.
@@ -158,14 +157,14 @@ merger constraint :mergers cannot partially disappear.
 Because of these additional constraints, the TUM property collapses, so LP relaxation is not tight.
 Therefore, we will first solve without division and meger constraints and then add only violated constraints.
 
-\subsection{Loosening Constraints}
+\subsection{Cutting Constraints}
 
-As stated before, we know that LP relaxation on the network flow without \textit{divisions} and \textit{mergers} will yield the optimal integral solution in polynomial time. Therefore we propose the following iterative alogrithm: In the first step the problem will be solved without division and merger constraints. Then, if there are flow conservation violation, the constraints are added for the relevant nodes. The last step is repeated until either a valid solution found or no new nodes with violations are found (leaving us with an invalid solution).
+As stated before, we know that LP relaxation on the network flow without \textit{divisions} and \textit{mergers} will yield the optimal integral solution. Therefore we propose the following iterative alogrithm: In the first step the problem will be solved without division and merger constraints. Then, if there are flow conservation violation, the constraints are added for the relevant nodes. The last step is repeated until either a valid solution found or no new nodes with violations are found (leaving us with an invalid solution). This is done both with and without LP relaxation. Then as an variation, that makes use of the TUM property, we begin with LP relaxation and if the algorithm terminates without a valid solution it will continue with an ILP solver.
 
 
 \subsection{Implementation}
 
-We built our algorithm as an extension to the \textit{Multi Hypothesis Tracking} tool by Carsten. It is implemented in C++ and the inference was performed with Gurobi (although CPLEX can also be used). The source code is available on \url{https://github.com/Ynzl/multiHypothesesTracking}.
+We built our algorithm as an extension to the \textit{Multi Hypothesis Tracking} tool by Carsten. It is implemented in C++ and the inference was performed with Gurobi (although CPLEX can also be used). For the interface to Gurobi the OpenGM framework for graphical models is used. The source code is available on \url{https://github.com/Ynzl/multiHypothesesTracking}.
 
 \section{Experiments and Results}
 
@@ -173,7 +172,7 @@ We test our algorithm on two challenging datasets, a 3D+t drosophila scan (DRO) 
 
 \subsection{Tracking Performance}
 
-We track these datasets in five different ways. First we run the original tracking on the full model with all constraints added. We use this solution (referred to as \textit{Full}) as our baseline, \ie ground truth, to evaluate the tracking performance of the other runs. These are for the \textit{Cutting Constraint} algorithm (CC) and both experiments (Full and CC) run with LP relaxation. Lastly, a variation of \textit{Cutting Constraint} is used where the first iteration is run with LP relaxation and then the integrality constraint is turned on for the following iterations (abbreviated with \textit{L2I}).
+We track these datasets in five different ways. First we run the original tracking on the full model with all constraints added. We use this solution (referred to as \textit{Full}) as our baseline, \ie ground truth, to evaluate the tracking performance of the other runs. These are for the \textit{Cutting Constraint} algorithm (CC) and both experiments (Full and CC) run with LP relaxation. Lastly, the variation of \textit{Cutting Constraint} is used where it starts with LP relaxation and then switches to ILP (abbreviated with \textit{L2I} for LP to ILP).
 
 \begin{table}
   \begin{center}
@@ -224,19 +223,19 @@ The quality of a solution is measured by comparing \textit{move}, \textit{merge}
   \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
      %\includegraphics[width=0.8\linewidth]{egfigure.eps}
   \end{center}
-   \caption{Example of caption.}
+   \caption{Runtime of the different tracking methods.}
   \label{fig:runtime}
 \end{figure}
 
 The runtime of the different methods are shown in \cref{fig:runtime}. All timings were performed on a machine with an Intel Core i7-6700HQ with 8 cores at 2.6GHz and 8GB RAM. Each experiment was run three times and the median is presented. In most cases the deviation between the runs was very small ($\sigma \leq 5\%$). However the size of the PSC model forced the machine to its limits and lead to big variations in the runtime. Furthermore because the black-box nature of both the Gurobi solver and the operating system it ran on, the runtime could be influenced by diverse mechanism unknown to us. Ideally the experiments are done on a machine with a lot more RAM. For the CC method the solving time is taken as the average over all iterations. In the L2I case this is not meaningful because of the mixing of ILP and LP solving.
 
-The experiments show that cutting constraints improve both model initialization time and the solving time significantly. But because of the amount of iterations and the time to verify the intermediate solutions, the total tracking time is slower. An exception is the DROr dataset without mergers which can be solved without any division constraints.
+The experiments show that cutting constraints improve both model initialization time and the solving time significantly. But because of the amount of iterations and the time to verify the intermediate solutions, the total tracking time is slower. An exception is the DROr dataset without mergers which can be solved without any division constraints. For all other datasets the needed constraints were only found after a significant amount of iterations.
 
-
+The iteration numbers of the L2I runs show that CC LP does not find all needed division and merger constraints. While L2I show a small improvement in runtime over CC ILP it still is much slower than the Full run.
 
 \section{Conclusion}
 
-It works but isn't really worth it.
+Based on the constrained network flow formulation of conservation tracking we explored a method to relax on division and merger constraints for cell tracking. We have shown that only a small fraction of all constraints are needed to find a valid tracking solution. Additionally, once the needed constraints are found the tracking takes less time. But because the needed constraints are only found after a lot of iterations, our cutting constraint algorithm proved to be slower and thus inefficient. Further exploratory development could be done by implementing the algorithm directly into the ILP solver avoiding the overhead made by the OpenGM framework.
 
 
 {\small
