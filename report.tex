@@ -64,12 +64,11 @@ In our project we explored an method to exploit this last property and built an 
 
 \subsection{Conservation Tracking Model}
 
-\begin{figure}[b]
-  \begin{center}
-    \includegraphics[width=0.8\linewidth]{model.jpeg}
-    \caption{Factor graph for one detection with two incoming and two outgoing transition candidates. The circular nodes represent random variables, the non-black boxes describe factors that are dependent on the connected variables, and filled black boxes represent constraints. The purple detection node $i$ is seperated into a disappearance variable $V_i$ and an appearance variable $A_i$. The binary variable $D_i$ indicates whether object $i$ is about to divide. The transition variables $T \in \{0,...,m\}$ indicates the number of objects that are linked between two detection hypotheses.}
-    \label{fig:ctmodel}
-  \end{center}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.8\linewidth]{model.jpeg}
+  \caption{Factor graph for one detection with two incoming and two outgoing transition candidates. The circular nodes represent random variables, the non-black boxes describe factors that are dependent on the connected variables, and filled black boxes represent constraints. The purple detection node $i$ is seperated into a disappearance variable $V_i$ and an appearance variable $A_i$. The binary variable $D_i$ indicates whether object $i$ is about to divide. The transition variables $T \in \{0,...,m\}$ indicates the number of objects that are linked between two detection hypotheses.}
+  \label{fig:ctmodel}
 \end{figure}
 
 The Conservation Tracking model is presented in factor graphs as in Fig. \ref{fig:ctmodel}. The model contains three types of variables: \textit{Detection} variables $X_i \in \mathcal{X}$ (including the appearance $A_i \in \mathcal{A}$ and disappearance variables $V_i \in \mathcal{V}$) for each connected object from the segmented image, binary \textit{dividing} variables $D_i \in \mathcal{D}$ indicating whether an object is about to divide, and \textit{transition} variables $T_i \in \mathcal{T}$ that represent connections between the detections in two neighboring time frames. Noteworthy is that a division is allowed if and only if the corresponding detection contains one object. The probabilities of transition are modeled using the center of mass distance between detections, while the probabilities of appearance and disappearance are constant throughout time but linearly decrease to the edge of each image.
