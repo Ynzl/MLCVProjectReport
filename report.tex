@@ -44,7 +44,7 @@ Jui-Hung Yuan\\
 %\thispagestyle{empty}
 
 \begin{abstract}
-  Cell tracking exhibits multiple difficulties separating it from other tracking scenarios. The fact that cells can divide is one of them. Network flow methods in which divisions are integrated as constraints proved to be efficient at solving these problems. In our project we tried to improve the runtime performance of a network flow ILP by adding the division constraints successively, similar to the cutting planes algorithm. We demonstrate in experiments on two challenging datasets that only a fraction of all constraints are needed to solve the tracking. But because of the iterative nature of the method the gain in solving speed is outweight by the total time of the repeated solving.
+  Cell tracking exhibits multiple difficulties separating it from other tracking scenarios. The fact that cells can divide is one of them. Network flow methods in which divisions are integrated as constraints proved to be efficient at solving these problems. In our project we tried to improve the runtime performance of a network flow ILP by adding the division constraints successively, similar to the cutting planes algorithm. We demonstrate in experiments on two challenging datasets that only a fraction of all constraints are needed to solve the tracking. But because of the iterative nature of the method, the gain in solving speed is outweighed by the total time of the repeated solving.
 \end{abstract}
 
 \section{Introduction}
@@ -55,11 +55,11 @@ The analysis of the time-lapse microscopic results usually requires not only the
 
 To tackle the cell tracking task, a two-step pipeline \cite{yilmaz2006object} consisting of a segmentation/detection phase and an assignment/tracking phase is commonly used. In the first phase, the raw input images are segmented into foreground and background. Those segmentations and the raw data are then fed into classifiers that generate the corresponding detection and division hypotheses. Using the outputs of the classifiers as potentials, a graphical model is built for all possible assignments of  detection hypotheses between time frames in the second phase. Such tracking approaches are known as \textit{Tracking-by-assignment} methods \cite{bise2011reliable,padfield2011coupled}, which assume that the previous extracted set of detection hypotheses are over-complete and the constructed model thus describe all tracked targets. A globally consistent tracking solution is then reached via various optimization strategies.
 
-The drawback of such method is that the errors in the first stage would propagate to, and warp, the tracking result. Such errors would occur where a cluster of objects is incorrectly represented by a single segment, termed as \textit{mergers} in this paper. To correct these over- and undersegmentation errors, the Conservation Tracking model \cite{schiegg2013conservation} which explicitly include the global consistency constraints was developed and was shown to outperform other tracking methods. From previous works, the Conservation Tracking model could be further reformulated into a constrained network flow problem which led to a tight LP relaxation and thus could be solved faster. Without the constraints for divisions and mergers, the LP relaxation of the model that accounts for flow conservation would yield integral solutions.
+The drawback of such method is that the errors in the first stage would propagate to, and warp, the tracking result. Such errors would occur where a cluster of objects is incorrectly represented by a single segment, termed as \textit{mergers} in this paper. To correct these over- and undersegmentation errors, the Conservation Tracking model \cite{schiegg2013conservation} which explicitly include the global consistency constraints was developed and was shown to outperform other tracking methods. From previous works, the Conservation Tracking model could be further reformulated into a constrained network flow problem which -- if the division and merger constraints are excluded -- has a tight LP relaxation and thus achieves integral solutions in a shorter solving time.
 
 In our project we explored an method to exploit this last property and built an algorithm that disregards the division and merger constraints at first and only adds them to the model as needed.
 
-\section{Constrained Network Flow Reformulation of Consveration Tracking}
+\section{Constrained Network Flow Reformulation of Conservation Tracking}
 
 
 \subsection{Conservation Tracking Model}
@@ -67,7 +67,7 @@ In our project we explored an method to exploit this last property and built an 
 \begin{figure}[b]
   \begin{center}
     \includegraphics[width=0.8\linewidth]{model.jpeg}
-    \caption{Factor graph for one detection with two incoming and two outgoing transition candidates. The circular nodes represent random variables, the non-black boxes describe factors that are dependent on the connected variables, and filled black boxes represent constraints. The purple detection node $i$ is seperated into a disappearance variable $V_i$ and an appearance variable $A_i$. The binary variable $D_i$ indicates whether object $i$ is about to divide. The transition variables $T \in \{0,...,m\}$ indicates the number of objects that are linked between two detection hypotheses.}
+    \caption{Factor graph for one detection with two incoming and two outgoing transition candidates. The circular nodes represent random variables, the non-black boxes describe factors that are dependent on the connected variables, and filled black boxes represent constraints. The purple detection node $i$ is separated into a disappearance variable $V_i$ and an appearance variable $A_i$. The binary variable $D_i$ indicates whether object $i$ is about to divide. The transition variables $T \in \{0,...,m\}$ indicates the number of objects that are linked between two detection hypotheses.}
     \label{fig:ctmodel}
   \end{center}
 \end{figure}
@@ -90,15 +90,15 @@ subject to constraints for flow conservation, division and mergers which will be
 
 Linear Programming (LP) is a method to minimize (maximize) linear objective function, subject to linear inequality. Its formulation is as below.
 \begin{align}
-min_{x} 　c^{T}x \\
-s.t. Ax \leq b
+min_{x} \quad c^{T}x \\
+s.t. \quad Ax \leq b
 \end{align}
-The objective function \(c^{T}x\) linearly depends on the vector \(x \in R^{n}\) which represents n variables in question. Constraint \(Ax \leq b\) defines n hyperplanes that disallow x to lie in the back side. The area where x satisfies all the constraints is called "polytope". It is proved that the optimal solution lies on a vertex of the polytope. For this reason, LP is solved in polynomial time by searching along vertices on the polytope.
-When x takes only integer values (i.e. \(x \in Z^{n}\) ), the problem is called Integer Linear Programs (ILP). ILP is NP hard in general and cannot be solved in polynomial time. 
-A common approach to solve ILPs is to ignore the integrarity constraints and to solve this relaxed LP. Since this "relaxed" problem is LP, we can solve it in polynomial time. From the solution, we gain the information about original ILP problem.
-If the solution of relaxed LP is integtal - and hence coinsides with the solution of original ILP - , the relaxation is said to be "tight" around the optimum.
+The objective function \(c^{T}x\) linearly depends on the vector \(x \in R^{n}\) which represents $n$ variables in question. Constraint \(Ax \leq b\) defines $n$ hyperplanes that disallow $x$ to lie in the back side. The area where $x$ satisfies all the constraints is called "polytope". It is proved that the optimal solution lies on a vertex of the polytope. For this reason, LP is solved in polynomial time by searching along vertices on the polytope.
+When $x$ takes only integer values (i.e. \(x \in Z^{n}\) ), the problem is called Integer Linear Programs (ILP). ILP is NP hard in general and cannot be solved in polynomial time. 
+A common approach to solve ILPs is to ignore the integrality constraints and to solve this relaxed LP. Since this "relaxed" problem is LP, we can solve it in polynomial time. From the solution, we gain the information about original ILP problem.
+If the solution of relaxed LP is integral - and hence coincides with the solution of original ILP - , the relaxation is said to be "tight" around the optimum.
 
-A network flow is a directed graph with capacity on each edge. The flow can travel on directed graph under following rules. (1)The flow should not exceed the capacity. (2)The flow traveling to and from one node must be equal (Flow conservation). One can imagine as such networks water pipes, traffic network, electric circuits. There are several types of Network flow algorithms. For example, max-flow algorithm tries to maximize the flow from source to sink, and min-cost algorithm finds the route that minimize the cost. An important property here is that if all capacities are integers, optimal flow also takes an integer value. This situation corresponds to the constraint matrix(A) is totallly unimodular (TUM) in ILP, therefore LP relaxation is tight ~\cite{Bertsekas}.
+A network flow is a directed graph with capacity on each edge. The flow can travel on directed graph under following rules. (1)The flow should not exceed the capacity. (2)The flow traveling to and from one node must be equal (Flow conservation). One can imagine as such networks water pipes, traffic network, electric circuits. There are several types of Network flow algorithms. For example, max-flow algorithm tries to maximize the flow from source to sink, and min-cost algorithm finds the route that minimize the cost. An important property here is that if all capacities are integers, optimal flow also takes an integer value. This situation corresponds to the constraint matrix($A$) is totally unimodular (TUM) in ILP, therefore LP relaxation is tight ~\cite{Bertsekas}.
 
 \begin{figure}[t]
   \centering
@@ -107,7 +107,7 @@ A network flow is a directed graph with capacity on each edge. The flow can trav
   \label{fig:ilpmodel}
 \end{figure}
 
-We deal with the flow network graph as shown in Fig. \ref{fig:ilpmodel} Notation is slightly changed from 2.1, $X_i \in \mathcal{X}$ is \textit{Detection} variables and the appearance $A_i \in \mathcal{A}$ and disappearance variables $V_i \in \mathcal{V}$ are modeled in \textit{transition} variables. Every random variables $V \in \mathcal{V}$ take state $k \in \mathcal{L}(V) \equiv {0, ...,m}$ indicating the number of contained target, where m is the upper about on the number of targets that can be merged into one detection. We introduce a unary potential $\theta_{V}(k)$ for every random variables $V \in \mathcal{V}$. This is the negative lof of probability that V takes value k. The probability is givein by local observation.
+We deal with the flow network graph as shown in Fig. \ref{fig:ilpmodel} Notation is slightly changed from 2.1, $X_i \in \mathcal{X}$ is \textit{Detection} variables and the appearance $A_i \in \mathcal{A}$ and disappearance variables $V_i \in \mathcal{V}$ are modeled in \textit{transition} variables. Every random variables $V \in \mathcal{V}$ take state $k \in \mathcal{L}(V) \equiv {0, ...,m}$ indicating the number of contained target, where $m$ is the upper about on the number of targets that can be merged into one detection. We introduce a unary potential $\theta_{V}(k)$ for every random variables $V \in \mathcal{V}$. This is the negative logarithm of probability that V takes value k. The probability is given by local observation.
 Our formulation is as follows.
 
 \begin{scriptsize}
@@ -118,7 +118,7 @@ Our formulation is as follows.
      & + \sum\limits_{T\in\mathcal{T}} \sum\limits_{k\in\mathcal{L(T)}} 1[y_T = k] \newline + \sum\limits_{D\in\mathcal{D}} \sum\limits_{k\in\mathcal{L(D)}} 1[y_D = k]
 \end{align}
 \text{subject to:} \\
-\text{Flow conservarion:} \\
+\text{Flow conservation:} \\
 \begin{align}
 \forall X\in\mathcal{X} \cup Sink : y_{X} = \sum\limits_{I\in\mathcal{I}(X)}y_{I}, \\
 \forall X\in\mathcal{X} \cup Source : y_{X} + Y_{D(X)} = \sum\limits_{O\in\mathcal{O}(X)}y_{O}
@@ -134,17 +134,17 @@ Our formulation is as follows.
 \end{align}
 \end{scriptsize}
 
-where $\mathcal{I}(X)$ is incoming to X, $\mathcal{O}(X)$ is outgoing. The meaning of each constraint is
+where $\mathcal{I}(X)$ is incoming to $X$, $\mathcal{O}(X)$ is outgoing. The meaning of each constraint is
 flow conservation :the number of incoming and out going are the same.
-division constraint :one cell can dicide into at most two cells.
+division constraint :one cell can divide into at most two cells.
 merger constraint :mergers cannot partially disappear.
 
 Because of these additional constraints, the TUM property collapses, so LP relaxation is not tight.
-Therefore, we will first solve without division and meger constraints and then add only violated constraints.
+Therefore, we will first solve without division and merger constraints and then add only violated constraints.
 
 \subsection{Cutting Constraints}
 
-As stated before, we know that LP relaxation on the network flow without \textit{divisions} and \textit{mergers} will yield the optimal integral solution. Therefore we propose the following iterative alogrithm: In the first step the problem will be solved without division and merger constraints. Then, if there are flow conservation violation, the constraints are added for the relevant nodes. The last step is repeated until either a valid solution found or no new nodes with violations are found (leaving us with an invalid solution). This is done both with and without LP relaxation. Then as an variation, that makes use of the TUM property, we begin with LP relaxation and if the algorithm terminates without a valid solution it will continue with an ILP solver.
+As stated before, we know that LP relaxation on the network flow without \textit{divisions} and \textit{mergers} will yield the optimal integral solution. Therefore we propose the following iterative algorithm: In the first step the problem will be solved without division and merger constraints. Then, if there are flow conservation violation, the constraints are added for the relevant nodes. The last step is repeated until either a valid solution found or no new nodes with violations are found (leaving us with an invalid solution). This is done both with and without LP relaxation. Then as an variation, that makes use of the TUM property, we begin with LP relaxation and if the algorithm terminates without a valid solution it will continue with an ILP solver.
 
 
 \subsection{Implementation}
@@ -153,7 +153,7 @@ We built our algorithm as an extension to the \textit{Multi Hypothesis Tracking}
 
 \section{Experiments and Results}
 
-We test our algorithm on two challenging datasets, a 3D+t drosophila scan (DRO) and 2D+t pancreatic rat stem cells (PSC) presented in Rapoport. There are two versions to both datasets, the full set including all mergers and a reduced version where mergers are omitted (DROr, PSCr). These datasets were given in the form of readily segmentated graphical models.
+We test our algorithm on two challenging datasets, a 3D+t drosophila scan (DRO) and 2D+t pancreatic rat stem cells (PSC) presented in Rapoport. There are two versions to both datasets, the full set including all mergers and a reduced version where mergers are omitted (DROr, PSCr). These datasets were given in the form of readily segmented graphical models.
 
 \subsection{Tracking Performance}
 
@@ -234,7 +234,7 @@ The quality of a solution is measured by comparing \textit{move}, \textit{merge}
   \label{tab:iter}
 \end{table}
 
-The iteration numbers of the L2I runs show that CC LP does not find all needed division and merger constraints. While L2I show a small improvement in runtime over CC ILP it still is much slower than the Full run.
+The iteration numbers of the L2I runs show that CC LP does not find all needed division and merger constraints. While L2I show a small improvement in runtime over CC ILP, it still is much slower than the Full run.
 
 \section{Conclusion}
 
